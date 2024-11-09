@@ -158,6 +158,49 @@ Each file is processed in turn, and a summary of its basic structure, missing va
     • The quality of the data (e.g., missing or incomplete records).
     • The presence of any unexpected columns or data types.
     • A sense of the distribution of values (e.g., extremely high or low values, which might indicate outliers).
+This is a part of the output – one river
+```bash
+Processing Tully_River_Tully_Gorge_National_Park_joined.csv...
+--- Summary for Tully_River_Tully_Gorge_National_Park_joined.csv ---
+Basic Information:
+Columns: Index(['Timestamp', 'NO3', 'Level', 'Dayofweek', 'Month'], dtype='object')
+Data Types:
+Timestamp     object
+NO3          float64
+Level        float64
+Dayofweek      int64
+Month          int64
+dtype: object
+
+First few rows:
+             Timestamp    NO3  Level  Dayofweek  Month
+0  2019-03-27T16:00:00  0.015  3.502          2      3
+1  2019-03-27T17:00:00    NaN  3.496          2      3
+2  2019-03-27T18:00:00    NaN  3.495          2      3
+3  2019-03-27T19:00:00    NaN  3.496          2      3
+4  2019-03-27T20:00:00  0.016  3.489          2      3
+
+Missing Data:
+Timestamp        0
+NO3          26412
+Level           25
+Dayofweek        0
+Month            0
+dtype: int64
+
+Statistical Summary (for numeric columns):
+               NO3         Level     Dayofweek         Month
+count  2028.000000  28415.000000  28440.000000  28440.000000
+mean      0.013964      2.443103      2.996906      6.184810
+std       0.013730      1.176083      1.999962      3.529149
+min       0.001000      1.130400      0.000000      1.000000
+25%       0.003000      1.625083      1.000000      3.000000
+50%       0.010000      2.139000      3.000000      6.000000
+75%       0.020000      2.850000      5.000000      9.000000
+max       0.092000      8.884375      6.000000     12.000000
+
+==================================================
+```
 
 ## Summary
 The initial.py script serves as the first step in exploring and preparing the data. By loading the dataset files, inspecting the structure, checking for missing data, and calculating basic statistics, it gives you a clear picture of the dataset's state. Based on this output, you can make informed decisions about how to proceed with data cleaning and aggregation.
@@ -342,6 +385,20 @@ if __name__ == '__main__':
 ```
 This will start the app in "debug" mode, so any changes to the code will automatically reload the app in the browser.
 
+You will get CLI output like this:
+```bash
+human@human-ProBook:~/git_data$ python3 app.py 
+Dash is running on http://127.0.0.1:8050/
+
+ * Serving Flask app 'app'
+* Debug mode: on
+```
+
+Then, by opening a web browser and going to 127.0.0.1:8050, you will see the interactive dashboard with all the values represented clearly and easy to compare.
+
+![Dashboard Image 1](images/dash_1.png)
+![Dashboard Image 2](images/dash_2.png)
+![Dashboard Image 3](images/dash_3.png)
 
 
 ## Acknowledgements
