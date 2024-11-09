@@ -74,7 +74,7 @@ pip install pandas dash dash-leaflet plotly
 ```
 
 
-##Step 1: Understanding the Files
+# Step 1: Understanding the Files
 In the first step, we need to analyze the dataset files to check their consistency, column structure, and how well the data fits together. The goal here is to identify how many rows are in each file, check if there are any missing values, and verify the columns that exist in each file.
 ### Loading the Files:
 ```bash
@@ -248,7 +248,99 @@ aggregated_df.to_csv(output_file, index=False)
 
 print(f"Aggregated data saved to {output_file}")
 ```
+# Visualizing the data
+## 1. Import Required Libraries
+We begin by importing all the necessary libraries for the Dash application, including Dash, Plotly, and Pandas for data manipulation. We also need Dash's components for building the layout of the app.
+```bash
+import dash
+from dash import dcc, html
+import plotly.express as px
+import pandas as pd
+import os
+```
+## 2. Initialize the Dash App
+Next, we initialize the Dash application. Dash is a framework for building interactive web applications using Python, and it's used here to create a user-friendly interface for exploring river data.
+```bash
+# Initialize Dash app
+app = dash.Dash(__name__)
+```
+## 3. Load the Aggregated Data
+We load the pre-aggregated river data from the CSV file generated earlier by the aggregate_rivers.py script. This DataFrame will be used to populate the visualizations in the app.
+```bash
+# Path to the aggregated river data CSV file
+aggregated_data_file = "/home/human/git_data/data/processed/aggregated_river_data.csv"
 
+# Load the aggregated data into a DataFrame
+df = pd.read_csv(aggregated_data_file)
+```
+## 4. Create Plots for Data Visualization
+For the visualization, we can use Plotly to create various charts such as time series plots, scatter plots, and histograms. The following code creates a time series plot for turbidity across all rivers.
+```bash
+# Create a time series plot for turbidity
+turbidity_fig = px.line(df, x='Timestamp', y='Turbidity', color='River Name', title="Turbidity over Time by River")
+```
+This creates a line plot where the x-axis represents the timestamp, the y-axis represents the turbidity levels, and the color differentiates the rivers.
+We can similarly create other plots based on the available metrics like Conductivity, NO3, Temp, Q (discharge), and Level:
+```bash
+# Create a time series plot for conductivity
+conductivity_fig = px.line(df, x='Timestamp', y='Conductivity', color='River Name', title="Conductivity over Time by River")
+
+# Create a time series plot for NO3 (Nitrate) levels
+nitrate_fig = px.line(df, x='Timestamp', y='NO3', color='River Name', title="Nitrate (NO3) Levels over Time by River")
+```
+## 5. Define the Layout of the Dash App
+The layout of the app is defined using Dash's HTML components (html.Div, html.H1, html.Div, etc.). We create a basic layout that includes a header, a description of the app, and a few interactive elements like dropdowns or checkboxes if needed.
+```bash
+# Define the layout of the Dash app
+app.layout = html.Div([
+    html.H1("River Water Quality Monitoring Dashboard"),
+    html.P("This dashboard displays various water quality parameters for multiple rivers based on IoT sensor data."),
+    
+    # Time series plots
+    html.Div([
+        dcc.Graph(id='turbidity-plot', figure=turbidity_fig),
+        dcc.Graph(id='conductivity-plot', figure=conductivity_fig),
+        dcc.Graph(id='nitrate-plot', figure=nitrate_fig)
+    ])
+])
+```
+In this example, we create three graphs that display the time series for turbidity, conductivity, and nitrate levels. These plots will be rendered inside the app when the user accesses it.
+## 6. Add Interactivity (Optional)
+For additional interactivity, we can add dropdowns or sliders that allow the user to filter the data by river or time period. Here's an example of how we could add a dropdown menu to filter the data by river:
+```bash
+# Create a dropdown for selecting rivers
+river_dropdown = dcc.Dropdown(
+    id='river-dropdown',
+    options=[{'label': river, 'value': river} for river in df['River Name'].unique()],
+    value=df['River Name'].unique()[0],  # Default value
+    multi=True
+)
+```
+We would then need to modify the plots to respond to the selected river(s) by updating the figures based on the dropdown value.
+## 7. Update Graphs Based on User Input
+Dash apps are interactive, meaning we can use callbacks to update the content of the app dynamically based on user input. Here's an example of a callback function that updates the turbidity plot based on the selected river(s) from the dropdown:
+```bash
+from dash.dependencies import Input, Output
+
+# Callback to update the turbidity plot based on selected rivers
+@app.callback(
+    Output('turbidity-plot', 'figure'),
+    [Input('river-dropdown', 'value')]
+)
+def update_turbidity_plot(selected_rivers):
+    filtered_df = df[df['River Name'].isin(selected_rivers)]
+    fig = px.line(filtered_df, x='Timestamp', y='Turbidity', color='River Name', title="Turbidity over Time by River")
+    return fig
+```
+This callback function takes the selected rivers as input and filters the data accordingly, then updates the turbidity plot with the filtered data.
+## 8. Run the Dash App
+Finally, we run the Dash app. This will start a local web server that can be accessed through a browser at the specified address.
+```bash
+# Run the Dash app
+if __name__ == '__main__':
+    app.run_server(debug=True)
+```
+This will start the app in "debug" mode, so any changes to the code will automatically reload the app in the browser.
 
 
 
