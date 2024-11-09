@@ -57,7 +57,7 @@ To start the data visualization app, run the following command in the terminal:
 
 ```bash
 python app.py
-
+```
 ## Dependencies
 
 Make sure to have all dependencies installed, such as:
@@ -71,7 +71,7 @@ You can install them using pip:
 
 ```bash
 pip install pandas dash dash-leaflet plotly
-
+```
 ## Acknowledgements
 
 This dataset was sourced from the study by Zhang et al. (2019) on water quality monitoring using IoT networks. For further details on data collection and methodology, see the following publication:
