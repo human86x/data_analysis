@@ -162,7 +162,92 @@ Each file is processed in turn, and a summary of its basic structure, missing va
 ## Summary
 The initial.py script serves as the first step in exploring and preparing the data. By loading the dataset files, inspecting the structure, checking for missing data, and calculating basic statistics, it gives you a clear picture of the dataset's state. Based on this output, you can make informed decisions about how to proceed with data cleaning and aggregation.
 
+# Aggregating the data
+## 1. Set Up the Data Directory and Output File
+The script starts by defining the directory containing the river data files (data_dir) and the output file where the aggregated data will be saved (output_file).
+```bash
+# Directory containing river data files
+data_dir = "/home/human/git_data/data/rivers"
 
+# Output file
+output_file = "/home/human/git_data/data/processed/aggregated_river_data.csv"
+```
+## 2. Define Mapping of River Files
+We define a dictionary called river_info, which maps the file names to the river names and locations. This helps associate each data file with specific river locations and allows us to track which river and location each data file belongs to.
+```bash
+# Mapping of file names to river name and location
+river_info = {
+    "Johnstone_river_coquette_point_joined.csv": ("Johnstone River", "Coquette Point"),
+    "Johnstone_river_innisfail_joined.csv": ("Johnstone River", "Innisfail"),
+    "Mulgrave_river_deeral_joined.csv": ("Mulgrave River", "Deeral"),
+    "Pioneer_Dumbleton_joined.csv": ("Pioneer River", "Dumbleton"),
+    "Plane_ck_sucrogen_joined.csv": ("Plane Creek", "Sucrogen"),
+    "Proserpine_river_glen_isla_joined.csv": ("Proserpine River", "Glen Isla"),
+    "russell_river_east_russell_joined.csv": ("Russell River", "East Russell"),
+    "sandy_ck_homebush_joined.csv": ("Sandy Creek", "Homebush"),
+    "sandy_ck_sorbellos_road_joined.csv": ("Sandy Creek", "Sorbellos Road"),
+    "Tully_river_euramo_joined.csv": ("Tully River", "Euramo"),
+    "Tully_River_Tully_Gorge_National_Park_joined.csv": ("Tully River", "Tully Gorge National Park")
+}
+```
+## 3. Prepare the List of DataFrames
+Next, we initialize an empty list dataframes that will hold the individual DataFrames corresponding to each river data file. Each DataFrame will be processed, aligned to a target format, and then added to this list.
+```bash
+# List to store dataframes
+dataframes = []
+```
+## 4. Define the Final Target Column Order
+We specify the target column order target_columns for the aggregated DataFrame. This ensures that regardless of the original order of the columns in the source data, the final DataFrame will have a consistent structure.
+```bash
+# Define the final target column order
+target_columns = ['Timestamp', 'Conductivity', 'NO3', 'Temp', 'Turbidity', 'Dayofweek', 'Month', 'Q', 'Level', 'River Name', 'Location']
+```
+## 5. Processing Each River File
+The script then enters a loop that processes each river data file in the river_info dictionary. For each file, it:
+    1. Reads the CSV file into a DataFrame using pd.read_csv().
+    2. Adds the river-specific information (i.e., river name and location) as new columns.
+    3. Creates an empty DataFrame aligned_df with the target columns, ensuring all columns in the original data are matched to the target column order.
+    4. Copies relevant data from the original DataFrame into the aligned DataFrame.
+    5. Appends the aligned DataFrame to the dataframes list.
+```bash
+# Process each file
+for file_name, (river_name, location) in river_info.items():
+    file_path = os.path.join(data_dir, file_name)
+    df = pd.read_csv(file_path)
+    
+    # Add river-specific information
+    df["River Name"] = river_name
+    df["Location"] = location
+    
+    # Initialize an empty DataFrame with the target columns
+    aligned_df = pd.DataFrame(columns=target_columns)
+    
+    # Copy data from the current file's DataFrame to the aligned DataFrame
+    for column in df.columns:
+        if column in target_columns:
+            aligned_df[column] = df[column]
+    
+    # Fill missing columns with NaN (for columns not present in the file)
+    aligned_df["River Name"] = river_name
+    aligned_df["Location"] = location
+    
+    # Append to the list of dataframes
+    dataframes.append(aligned_df)
+```
+## 6. Concatenate All DataFrames
+After processing each individual file and storing the aligned DataFrames, the script concatenates all DataFrames from the dataframes list into a single DataFrame using pd.concat(). This step aggregates the data from all rivers into one DataFrame.
+```bash
+# Concatenate all dataframes
+aggregated_df = pd.concat(dataframes, ignore_index=True)
+```
+## 7. Save the Aggregated Data to CSV
+Finally, the script saves the aggregated DataFrame into a CSV file specified by output_file. This file will contain all the data from all the rivers, aligned and ready for further analysis.
+```bash
+# Save to CSV
+aggregated_df.to_csv(output_file, index=False)
+
+print(f"Aggregated data saved to {output_file}")
+```
 
 
 
